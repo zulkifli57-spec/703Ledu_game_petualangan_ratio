@@ -1,0 +1,1120 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ratio Adventure - Petualangan Dunia Perbandingan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        body {
+            font-family: 'Fredoka', 'Nunito', sans-serif;
+            background-color: #0f172a;
+            color: #1e293b;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+        }
+
+        .font-nunito {
+            font-family: 'Nunito', sans-serif;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 8px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #94a3b8;
+            border-radius: 8px;
+        }
+
+        /* Pulse and Bounce Effects */
+        @keyframes gentle-bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+        .animate-gentle-bounce {
+            animation: gentle-bounce 2.5s infinite ease-in-out;
+        }
+
+        .btn-action {
+            transition: all 0.15s ease-in-out;
+            box-shadow: 0 6px 0 rgba(0, 0, 0, 0.2);
+        }
+        .btn-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 0 rgba(0, 0, 0, 0.2);
+        }
+        .btn-action:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .island-card {
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .island-card:hover:not(.disabled) {
+            transform: scale(1.05) translateY(-5px);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-cyan-600 via-sky-700 to-indigo-900 min-h-screen text-slate-800 flex flex-col justify-between overflow-x-hidden">
+
+    <!-- Top Header Navigation Bar -->
+    <header class="w-full bg-slate-900/80 backdrop-filter backdrop-blur-md text-white border-b-4 border-amber-400 px-4 py-2 flex items-center justify-between sticky top-0 z-50">
+        <div class="flex items-center space-x-3">
+            <div class="bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 font-black px-3 py-1 rounded-xl text-sm shadow-md flex items-center gap-1">
+                <span>🏷️</span>
+                <span>703Ledu</span>
+            </div>
+            <button onclick="showScreen('screen-main-menu')" class="flex items-center space-x-1 bg-sky-600 hover:bg-sky-500 text-white font-bold px-3 py-1.5 rounded-lg text-sm transition shadow-sm">
+                <span>🏠</span>
+                <span class="hidden sm:inline">Menu Utama</span>
+            </button>
+        </div>
+
+        <div class="flex items-center space-x-2 sm:space-x-4">
+            <!-- Audio Toggle -->
+            <button id="sound-btn" onclick="toggleSound()" class="bg-slate-800 hover:bg-slate-700 border-2 border-slate-600 p-2 rounded-xl text-lg flex items-center justify-center transition" title="Suara On/Off">
+                🔊
+            </button>
+            <!-- Fullscreen Toggle -->
+            <button onclick="toggleFullscreen()" class="bg-slate-800 hover:bg-slate-700 border-2 border-slate-600 p-2 rounded-xl text-lg flex items-center justify-center transition" title="Layar Penuh">
+                🖥️
+            </button>
+            <!-- High Score Badge -->
+            <div class="bg-indigo-950/80 border border-indigo-400/30 px-3 py-1 rounded-xl flex items-center gap-1.5 text-amber-300 font-bold text-sm">
+                <span>🏆 High Score:</span>
+                <span id="global-high-score">0</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Game Container -->
+    <main class="flex-grow flex items-center justify-center p-3 sm:p-6 w-full max-w-6xl mx-auto">
+
+        <!-- SCREEN 1: MAIN MENU -->
+        <section id="screen-main-menu" class="w-full glass-card rounded-3xl p-6 sm:p-10 shadow-2xl border-4 border-amber-300/80 text-center relative overflow-hidden my-auto animate-fadeIn">
+            <!-- Background Decorative Elements -->
+            <div class="absolute -top-10 -left-10 w-32 h-32 bg-amber-300/30 rounded-full blur-xl pointer-events-none"></div>
+            <div class="absolute -bottom-10 -right-10 w-40 h-40 bg-sky-400/30 rounded-full blur-xl pointer-events-none"></div>
+
+            <div class="relative z-10 flex flex-col items-center">
+                <span class="text-xs sm:text-sm uppercase tracking-widest font-black text-amber-600 bg-amber-100 border border-amber-300 px-4 py-1 rounded-full mb-2 shadow-sm">
+                    703Ledu • Matematika Kelas VI SD
+                </span>
+
+                <h1 class="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-sky-600 via-indigo-600 to-purple-600 drop-shadow-md mb-2">
+                    RATIO ADVENTURE
+                </h1>
+                <p class="text-lg sm:text-2xl font-bold text-amber-600 mb-6 tracking-wide">
+                    🌴 Petualangan Dunia Perbandingan 🌴
+                </p>
+
+                <!-- Avatar Hero Graphic -->
+                <div class="my-2 relative group cursor-pointer" onclick="playAudio('pop')">
+                    <div class="w-32 h-32 sm:w-40 sm:h-40 bg-gradient-to-tr from-amber-300 via-orange-400 to-yellow-200 rounded-full border-4 border-white shadow-xl flex items-center justify-center text-6xl sm:text-7xl transform transition duration-300 group-hover:scale-105 animate-gentle-bounce">
+                        🤠
+                    </div>
+                    <div class="absolute -bottom-2 bg-slate-900 text-amber-300 font-extrabold text-xs px-3 py-1 rounded-full border border-amber-400 shadow-md">
+                        Si Penjelajah Rasio
+                    </div>
+                </div>
+
+                <p class="text-slate-600 max-w-md my-4 font-semibold text-sm sm:text-base leading-relaxed">
+                    Bantu Penjelajah Cilik menguasai konsep perbandingan dua besaran dan taklukkan 5 Pulau Rasio! 🚀
+                </p>
+
+                <!-- Navigation Buttons Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 w-full max-w-md mt-4">
+                    <button onclick="showScreen('screen-level-select'); playAudio('click')" class="btn-action bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-400 hover:to-green-500 text-white font-extrabold text-lg py-3.5 px-6 rounded-2xl flex items-center justify-center gap-2 border-b-4 border-green-800">
+                        <span>🎮</span> Mulai Petualangan
+                    </button>
+                    <button onclick="showScreen('screen-materi'); playAudio('click')" class="btn-action bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-extrabold text-lg py-3.5 px-6 rounded-2xl flex items-center justify-center gap-2 border-b-4 border-blue-800">
+                        <span>📖</span> Materi Ringkas
+                    </button>
+                    <button onclick="showScreen('screen-petunjuk'); playAudio('click')" class="btn-action bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white font-extrabold text-lg py-3.5 px-6 rounded-2xl flex items-center justify-center gap-2 border-b-4 border-orange-800">
+                        <span>💡</span> Petunjuk Main
+                    </button>
+                    <button onclick="showScreen('screen-refleksi'); playAudio('click')" class="btn-action bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-400 hover:to-pink-500 text-white font-extrabold text-lg py-3.5 px-6 rounded-2xl flex items-center justify-center gap-2 border-b-4 border-pink-800">
+                        <span>🏆</span> Refleksi & Hasil
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SCREEN 2: LEVEL SELECT MAP -->
+        <section id="screen-level-select" class="w-full glass-card rounded-3xl p-6 sm:p-8 shadow-2xl border-4 border-amber-300 hidden">
+            <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-3 border-b-2 border-slate-200 pb-4">
+                <div>
+                    <span class="text-amber-600 font-extrabold text-xs uppercase tracking-wider">703Ledu Game Map</span>
+                    <h2 class="text-2xl sm:text-3xl font-black text-indigo-950 flex items-center gap-2">
+                        <span>🗺️</span> Peta Pulau Rasio
+                    </h2>
+                </div>
+                <button onclick="showScreen('screen-main-menu')" class="bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold px-4 py-2 rounded-xl text-sm transition">
+                    ⬅️ Kembali
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6 my-2">
+                <!-- Level 1 Card -->
+                <div id="level-card-1" onclick="startLevel(1)" class="island-card cursor-pointer bg-gradient-to-b from-sky-100 to-sky-200 border-4 border-sky-400 p-5 rounded-2xl shadow-lg relative overflow-hidden">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="bg-sky-500 text-white font-black text-xs px-2.5 py-1 rounded-lg">LEVEL 1</span>
+                        <div id="stars-lvl-1" class="text-amber-400 text-lg font-bold">⭐⭐⭐</div>
+                    </div>
+                    <div class="text-4xl my-2">🍎</div>
+                    <h3 class="font-extrabold text-slate-900 text-lg">Pulau Pengenalan Rasio</h3>
+                    <p class="text-xs text-slate-600 font-semibold mt-1">Mengenal konsep dasar perbandingan buah-buahan.</p>
+                </div>
+
+                <!-- Level 2 Card -->
+                <div id="level-card-2" onclick="startLevel(2)" class="island-card cursor-pointer bg-gradient-to-b from-emerald-100 to-emerald-200 border-4 border-emerald-400 p-5 rounded-2xl shadow-lg relative overflow-hidden">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="bg-emerald-600 text-white font-black text-xs px-2.5 py-1 rounded-lg">LEVEL 2</span>
+                        <div id="stars-lvl-2" class="text-amber-400 text-lg font-bold">⭐⭐⭐</div>
+                    </div>
+                    <div class="text-4xl my-2">🌲</div>
+                    <h3 class="font-extrabold text-slate-900 text-lg">Hutan Perbandingan</h3>
+                    <p class="text-xs text-slate-600 font-semibold mt-1">Membandingkan objek benda, bola, pensil, & bunga.</p>
+                </div>
+
+                <!-- Level 3 Card -->
+                <div id="level-card-3" onclick="startLevel(3)" class="island-card cursor-pointer bg-gradient-to-b from-amber-100 to-amber-200 border-4 border-amber-400 p-5 rounded-2xl shadow-lg relative overflow-hidden">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="bg-amber-600 text-white font-black text-xs px-2.5 py-1 rounded-lg">LEVEL 3</span>
+                        <div id="stars-lvl-3" class="text-amber-400 text-lg font-bold">⭐⭐⭐</div>
+                    </div>
+                    <div class="text-4xl my-2">🏙️</div>
+                    <h3 class="font-extrabold text-slate-900 text-lg">Kota Rasio</h3>
+                    <p class="text-xs text-slate-600 font-semibold mt-1">Menyelesaikan masalah rasio dalam kehidupan sehari-hari.</p>
+                </div>
+
+                <!-- Level 4 Card -->
+                <div id="level-card-4" onclick="startLevel(4)" class="island-card cursor-pointer bg-gradient-to-b from-purple-100 to-purple-200 border-4 border-purple-400 p-5 rounded-2xl shadow-lg relative overflow-hidden">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="bg-purple-600 text-white font-black text-xs px-2.5 py-1 rounded-lg">LEVEL 4</span>
+                        <div id="stars-lvl-4" class="text-amber-400 text-lg font-bold">⭐⭐⭐</div>
+                    </div>
+                    <div class="text-4xl my-2">🗣️</div>
+                    <h3 class="font-extrabold text-slate-900 text-lg">Tantangan Bahasa Rasio</h3>
+                    <p class="text-xs text-slate-600 font-semibold mt-1">Mengubah kalimat cerita menjadi bentuk perbandingan a : b.</p>
+                </div>
+
+                <!-- Level 5 Card (Boss Challenge) -->
+                <div id="level-card-5" onclick="startLevel(5)" class="island-card cursor-pointer bg-gradient-to-b from-rose-100 via-orange-100 to-amber-100 border-4 border-rose-500 p-5 rounded-2xl shadow-lg relative overflow-hidden md:col-span-2">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="bg-rose-600 text-white font-black text-xs px-2.5 py-1 rounded-lg">LEVEL 5 • FINAL</span>
+                        <div id="stars-lvl-5" class="text-amber-400 text-lg font-bold">⭐⭐⭐</div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="text-5xl">👑</div>
+                        <div>
+                            <h3 class="font-extrabold text-slate-900 text-xl">Misi Juara Rasio</h3>
+                            <p class="text-xs text-slate-600 font-semibold mt-0.5">10 Soal tantangan campuran bertahap. Raih skor minimal 80 untuk menjadi Master Rasio!</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SCREEN 3: MATERI RINGKAS -->
+        <section id="screen-materi" class="w-full glass-card rounded-3xl p-6 sm:p-8 shadow-2xl border-4 border-sky-300 hidden max-h-[85vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4 border-b pb-3 border-slate-200">
+                <div>
+                    <span class="text-sky-600 font-black text-xs uppercase">703Ledu Modul Belajar</span>
+                    <h2 class="text-2xl sm:text-3xl font-black text-slate-900 flex items-center gap-2">
+                        <span>📖</span> Apa Itu Rasio?
+                    </h2>
+                </div>
+                <button onclick="showScreen('screen-main-menu')" class="bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold px-4 py-2 rounded-xl text-sm transition">
+                    ⬅️ Kembali
+                </button>
+            </div>
+
+            <!-- Material Content Tabs / Cards -->
+            <div class="space-y-6 text-slate-700 font-semibold text-sm sm:text-base">
+                
+                <!-- Card 1 -->
+                <div class="bg-sky-50 border-2 border-sky-200 p-5 rounded-2xl">
+                    <h3 class="text-lg font-black text-sky-800 flex items-center gap-2 mb-2">
+                        <span>🔍</span> 1. Pengertian Rasio
+                    </h3>
+                    <p>
+                        <strong class="text-sky-900">Rasio</strong> adalah cara membandingkan dua besaran (jumlah/ukuran) benda atau situasi. Rasio biasanya ditulis dengan tanda titik dua (<strong class="text-amber-600">a : b</strong>) atau pecahan (<strong class="text-indigo-600">a/b</strong>).
+                    </p>
+                </div>
+
+                <!-- Card 2: Visual Example -->
+                <div class="bg-amber-50 border-2 border-amber-300 p-5 rounded-2xl">
+                    <h3 class="text-lg font-black text-amber-800 flex items-center gap-2 mb-2">
+                        <span>⚽</span> 2. Contoh Visual Perbandingan
+                    </h3>
+                    <p class="mb-3">Perhatikan koleksi bola berikut:</p>
+                    <div class="flex flex-wrap gap-2 justify-center bg-white p-4 rounded-xl border border-amber-200 my-2 shadow-inner">
+                        <!-- 3 Red Balls -->
+                        <div class="flex items-center gap-1 bg-rose-100 px-3 py-1.5 rounded-lg border border-rose-300">
+                            <span class="text-2xl">🔴</span>
+                            <span class="text-2xl">🔴</span>
+                            <span class="text-2xl">🔴</span>
+                            <span class="text-xs font-bold text-rose-800 ml-1">(3 Merah)</span>
+                        </div>
+                        <!-- 2 Blue Balls -->
+                        <div class="flex items-center gap-1 bg-blue-100 px-3 py-1.5 rounded-lg border border-blue-300">
+                            <span class="text-2xl">🔵</span>
+                            <span class="text-2xl">🔵</span>
+                            <span class="text-xs font-bold text-blue-800 ml-1">(2 Biru)</span>
+                        </div>
+                    </div>
+                    <ul class="list-disc list-inside space-y-2 mt-3 text-slate-800">
+                        <li>Rasio bola merah terhadap bola biru adalah <span class="bg-amber-200 px-2 py-0.5 rounded font-black text-amber-900">3 : 2</span></li>
+                        <li>Rasio bola biru terhadap bola merah adalah <span class="bg-amber-200 px-2 py-0.5 rounded font-black text-amber-900">2 : 3</span></li>
+                        <li>Rasio bola merah terhadap <strong class="text-purple-700">seluruh bola (5 bola)</strong> adalah <span class="bg-amber-200 px-2 py-0.5 rounded font-black text-amber-900">3 : 5</span></li>
+                    </ul>
+                </div>
+
+                <!-- Card 3: Important Rules -->
+                <div class="bg-rose-50 border-2 border-rose-300 p-5 rounded-2xl">
+                    <h3 class="text-lg font-black text-rose-800 flex items-center gap-2 mb-2">
+                        <span>⚠️</span> 3. Urutan Besaran Sangat Penting!
+                    </h3>
+                    <p>
+                        Ingat baik-baik! Urutan kata dalam pertanyaan menentukan posisi angka rasio.
+                    </p>
+                    <div class="bg-white p-3 rounded-xl border border-rose-200 mt-2 text-rose-900 font-bold text-sm">
+                        🚨 Rasio A : B <span class="text-red-600 font-black">TIDAK SAMA</span> dengan Rasio B : A!
+                    </div>
+                </div>
+
+                <!-- Card 4: Daily Application -->
+                <div class="bg-emerald-50 border-2 border-emerald-300 p-5 rounded-2xl">
+                    <h3 class="text-lg font-black text-emerald-800 flex items-center gap-2 mb-2">
+                        <span>🌱</span> 4. Rasio Dalam Kehidupan Sehari-hari
+                    </h3>
+                    <p class="text-slate-700">
+                        Rasio digunakan saat membuat resep kue (misal: 2 gelas tepung : 1 gelas gula), membandingkan jumlah murid laki-laki dan perempuan di kelas, serta menghitung skala peta!
+                    </p>
+                </div>
+            </div>
+
+            <div class="mt-6 text-center">
+                <button onclick="showScreen('screen-level-select'); playAudio('click')" class="btn-action bg-gradient-to-r from-emerald-500 to-green-600 text-white font-extrabold text-lg py-3 px-8 rounded-2xl shadow-lg">
+                    🚀 Langsung Coba Bermain!
+                </button>
+            </div>
+        </section>
+
+        <!-- SCREEN 4: PETUNJUK MAIN -->
+        <section id="screen-petunjuk" class="w-full glass-card rounded-3xl p-6 sm:p-8 shadow-2xl border-4 border-amber-300 hidden">
+            <div class="flex justify-between items-center mb-4 border-b pb-3 border-slate-200">
+                <div>
+                    <span class="text-amber-600 font-black text-xs uppercase">703Ledu Panduan</span>
+                    <h2 class="text-2xl sm:text-3xl font-black text-slate-900 flex items-center gap-2">
+                        <span>💡</span> Petunjuk Permainan
+                    </h2>
+                </div>
+                <button onclick="showScreen('screen-main-menu')" class="bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold px-4 py-2 rounded-xl text-sm transition">
+                    ⬅️ Kembali
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-slate-700 font-semibold text-sm sm:text-base">
+                <div class="bg-sky-50 border border-sky-200 p-4 rounded-xl flex items-start gap-3">
+                    <div class="text-3xl">❤️</div>
+                    <div>
+                        <h4 class="font-extrabold text-sky-900">Sistem Nyawa (3 Kesempatan)</h4>
+                        <p class="text-xs text-slate-600 mt-1">Di setiap level, kamu memiliki 3 nyawa. Jika salah menjawab, nyawa akan berkurang 1.</p>
+                    </div>
+                </div>
+
+                <div class="bg-amber-50 border border-amber-200 p-4 rounded-xl flex items-start gap-3">
+                    <div class="text-3xl">⭐</div>
+                    <div>
+                        <h4 class="font-extrabold text-amber-900">Poin & Bintang</h4>
+                        <p class="text-xs text-slate-600 mt-1">Setiap jawaban benar memberikan +10 poin. Selesaikan level untuk mengumpulkan bintang!</p>
+                    </div>
+                </div>
+
+                <div class="bg-emerald-50 border border-emerald-200 p-4 rounded-xl flex items-start gap-3">
+                    <div class="text-3xl">💡</div>
+                    <div>
+                        <h4 class="font-extrabold text-emerald-900">Pembahasan Langsung</h4>
+                        <p class="text-xs text-slate-600 mt-1">Setiap selesai menjawab, kamu akan mendapatkan penjelasan singkat untuk belajar secara mendalam (Mindful Learning).</p>
+                    </div>
+                </div>
+
+                <div class="bg-purple-50 border border-purple-200 p-4 rounded-xl flex items-start gap-3">
+                    <div class="text-3xl">👑</div>
+                    <div>
+                        <h4 class="font-extrabold text-purple-900">Gelar Master Rasio</h4>
+                        <p class="text-xs text-slate-600 mt-1">Taklukkan Level 5 Misi Juara Rasio dengan nilai minimal 80 untuk meraih sertifikat gelar "Master Rasio"!</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-6 text-center">
+                <button onclick="showScreen('screen-level-select'); playAudio('click')" class="btn-action bg-amber-500 hover:bg-amber-400 text-white font-extrabold text-lg py-3 px-8 rounded-2xl shadow-lg">
+                    🗺️ Pilih Level Sekarang
+                </button>
+            </div>
+        </section>
+
+        <!-- SCREEN 5: GAMEPLAY ACTIVE INTERFACE -->
+        <section id="screen-gameplay" class="w-full glass-card rounded-3xl p-4 sm:p-8 shadow-2xl border-4 border-indigo-300 hidden">
+            <!-- HUD / Header Info Bar -->
+            <div class="flex flex-wrap justify-between items-center bg-slate-900 text-white p-3 sm:p-4 rounded-2xl mb-6 shadow-md border border-slate-700 gap-2">
+                <div class="flex items-center space-x-3">
+                    <span id="game-level-tag" class="bg-amber-400 text-slate-950 font-black text-xs sm:text-sm px-3 py-1 rounded-xl uppercase">
+                        Level 1
+                    </span>
+                    <span id="game-level-title" class="font-extrabold text-sm sm:text-base text-slate-200 hidden md:inline">
+                        Pulau Pengenalan Rasio
+                    </span>
+                </div>
+
+                <!-- Lives Indicator -->
+                <div class="flex items-center space-x-1 bg-slate-800 px-3 py-1 rounded-xl border border-slate-600">
+                    <span class="text-xs font-bold text-slate-400 mr-1">Nyawa:</span>
+                    <span id="lives-display" class="text-lg">❤️❤️❤️</span>
+                </div>
+
+                <!-- Score Indicator -->
+                <div class="flex items-center space-x-2 bg-indigo-950 px-3 py-1 rounded-xl border border-indigo-500/50">
+                    <span class="text-amber-300 text-sm font-bold">Skor:</span>
+                    <span id="current-score" class="text-xl font-black text-amber-300">0</span>
+                </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="w-full bg-slate-200 rounded-full h-3 mb-6 overflow-hidden border border-slate-300">
+                <div id="progress-bar-inner" class="bg-gradient-to-r from-emerald-400 to-teal-500 h-full w-0 transition-all duration-300"></div>
+            </div>
+
+            <!-- Question Card Box -->
+            <div class="bg-white rounded-2xl p-5 sm:p-8 border-2 border-slate-200 shadow-lg text-center mb-6 relative">
+                <span id="question-counter" class="absolute top-3 left-4 text-xs font-extrabold text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-lg border border-indigo-200">
+                    Soal 1 dari 5
+                </span>
+
+                <!-- Visual Graphic Illustration Box -->
+                <div id="question-illustration" class="my-6 min-h-[120px] flex items-center justify-center bg-slate-50 border-2 border-dashed border-slate-300 rounded-2xl p-4 flex-wrap gap-3">
+                    <!-- Dynamic SVG or Emoji items inserted via JS -->
+                </div>
+
+                <!-- Question Text -->
+                <h3 id="question-text" class="text-lg sm:text-2xl font-black text-slate-800 my-2 leading-relaxed">
+                    Berapakah rasio apel merah terhadap apel hijau?
+                </h3>
+            </div>
+
+            <!-- Options Grid (2x2) -->
+            <div id="options-container" class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                <!-- Option Buttons rendered dynamically -->
+            </div>
+        </section>
+
+        <!-- MODAL 1: ANSWER FEEDBACK OVERLAY -->
+        <div id="feedback-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden animate-fadeIn">
+            <div class="glass-card max-w-lg w-full rounded-3xl p-6 sm:p-8 text-center shadow-2xl border-4 border-amber-300 transform transition-all scale-100">
+                <div id="feedback-icon" class="text-6xl my-2">🎉</div>
+                <h3 id="feedback-title" class="text-2xl sm:text-3xl font-black text-slate-900 my-1">
+                    Jawaban Benar!
+                </h3>
+                <div id="feedback-score-badge" class="inline-block bg-amber-100 text-amber-800 font-extrabold text-sm px-3 py-1 rounded-full mb-3 border border-amber-300">
+                    +10 Poin Tambahan
+                </div>
+
+                <!-- Explanation Box -->
+                <div class="bg-slate-50 border-2 border-slate-200 p-4 rounded-2xl text-left text-sm sm:text-base text-slate-700 font-semibold my-3">
+                    <p class="text-xs uppercase font-extrabold text-indigo-600 mb-1">💡 Pembahasan Pembelajaran:</p>
+                    <p id="feedback-explanation">
+                        Rasio apel merah terhadap apel hijau adalah 4 : 2 karena jumlah apel merah adalah 4 dan apel hijau adalah 2.
+                    </p>
+                </div>
+
+                <button id="feedback-next-btn" onclick="nextQuestion()" class="btn-action w-full bg-emerald-500 hover:bg-emerald-400 text-white font-extrabold text-lg py-3.5 rounded-2xl shadow-lg mt-2">
+                    Lanjut Ke Soal Berikutnya ➡️
+                </button>
+            </div>
+        </div>
+
+        <!-- SCREEN 6: REFLEKSI & RESULT SCORECARD -->
+        <section id="screen-refleksi" class="w-full glass-card rounded-3xl p-6 sm:p-8 shadow-2xl border-4 border-amber-300 hidden max-h-[90vh] overflow-y-auto">
+            <div class="text-center mb-6">
+                <span class="text-xs font-black uppercase text-amber-600 tracking-wider">703Ledu Laporan Hasil Belajar</span>
+                <h2 class="text-3xl sm:text-4xl font-black text-slate-900">🏆 Hasil & Refleksi Pembelajaran</h2>
+            </div>
+
+            <!-- Score Summary Dashboard -->
+            <div id="summary-dashboard" class="bg-gradient-to-r from-indigo-900 to-slate-900 text-white rounded-2xl p-6 shadow-xl border-2 border-indigo-400/30 mb-6">
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+                    <div class="bg-slate-800/80 p-3 rounded-xl border border-slate-700">
+                        <span class="text-xs text-slate-400 font-bold block">TOTAL SKOR</span>
+                        <span id="res-total-score" class="text-2xl sm:text-3xl font-black text-amber-300">0</span>
+                    </div>
+                    <div class="bg-slate-800/80 p-3 rounded-xl border border-slate-700">
+                        <span class="text-xs text-slate-400 font-bold block">BENAR</span>
+                        <span id="res-correct" class="text-2xl sm:text-3xl font-black text-emerald-400">0</span>
+                    </div>
+                    <div class="bg-slate-800/80 p-3 rounded-xl border border-slate-700">
+                        <span class="text-xs text-slate-400 font-bold block">SALAH</span>
+                        <span id="res-wrong" class="text-2xl sm:text-3xl font-black text-rose-400">0</span>
+                    </div>
+                    <div class="bg-slate-800/80 p-3 rounded-xl border border-slate-700">
+                        <span class="text-xs text-slate-400 font-bold block">AKURASI</span>
+                        <span id="res-accuracy" class="text-2xl sm:text-3xl font-black text-sky-400">0%</span>
+                    </div>
+                </div>
+
+                <!-- Predicate Banner -->
+                <div class="mt-6 text-center border-t border-slate-700 pt-4">
+                    <span class="text-xs text-slate-400 font-bold uppercase">Predikat Kemampuan:</span>
+                    <div id="res-predicate" class="text-2xl sm:text-3xl font-black text-amber-300 mt-1">
+                        🌟 Master Rasio
+                    </div>
+                    <p id="res-recommendation" class="text-xs sm:text-sm text-slate-300 mt-2 italic font-semibold">
+                        Rekomendasi: Tingkatkan pemahaman rasio part-to-whole pada latihan lanjut.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Deep Learning Reflection Interactive Questions -->
+            <div class="bg-amber-50 border-2 border-amber-300 p-5 rounded-2xl mb-6">
+                <h3 class="text-lg font-black text-amber-900 flex items-center gap-2 mb-3">
+                    <span>🤔</span> Refleksi Diri (Mindful & Meaningful Learning)
+                </h3>
+                
+                <div class="space-y-4 text-xs sm:text-sm text-slate-800 font-semibold">
+                    <div>
+                        <label class="block mb-1 text-amber-950 font-extrabold">1. Apa hal paling penting yang kamu pahami tentang rasio hari ini?</label>
+                        <input type="text" id="ref-q1" placeholder="Tuliskan pemahamanmu..." class="w-full p-2.5 rounded-xl border border-amber-300 bg-white font-normal focus:ring-2 focus:ring-amber-500 outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block mb-1 text-amber-950 font-extrabold">2. Mengapa urutan besaran dalam menuliskan rasio (a : b) sangat penting?</label>
+                        <input type="text" id="ref-q2" placeholder="Contoh: Karena perbandingan A ke B beda dengan B ke A..." class="w-full p-2.5 rounded-xl border border-amber-300 bg-white font-normal focus:ring-2 focus:ring-amber-500 outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block mb-1 text-amber-950 font-extrabold">3. Di mana kamu bisa menemukan penggunaan rasio di lingkungan sekitarmu?</label>
+                        <input type="text" id="ref-q3" placeholder="Contoh: Saat membuat teh manis, membandingkan bola, dll..." class="w-full p-2.5 rounded-xl border border-amber-300 bg-white font-normal focus:ring-2 focus:ring-amber-500 outline-none">
+                    </div>
+                </div>
+
+                <button onclick="saveReflection()" class="btn-action bg-amber-500 hover:bg-amber-400 text-white font-extrabold text-sm py-2 px-5 rounded-xl mt-4 shadow">
+                    💾 Simpan Jawaban Refleksi
+                </button>
+                <span id="ref-save-msg" class="text-xs font-extrabold text-emerald-700 ml-2 hidden">✓ Tersimpan!</span>
+            </div>
+
+            <div class="flex flex-wrap gap-3 justify-center">
+                <button onclick="showScreen('screen-level-select'); playAudio('click')" class="btn-action bg-sky-500 hover:bg-sky-400 text-white font-extrabold text-base py-3 px-6 rounded-2xl shadow-lg">
+                    🗺️ Mainkan Level Lain
+                </button>
+                <button onclick="showScreen('screen-main-menu'); playAudio('click')" class="btn-action bg-slate-700 hover:bg-slate-600 text-white font-extrabold text-base py-3 px-6 rounded-2xl shadow-lg">
+                    🏠 Kembali Ke Utama
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer Tagline -->
+    <footer class="w-full text-center py-3 text-white/70 text-xs font-semibold bg-slate-950/40 backdrop-blur-sm">
+        Ratio Adventure • Educational Math Game Class VI SD • Powered by 703Ledu
+    </footer>
+
+    <script>
+        /* SOUND SYNTHESIZER (Web Audio API) - No external audio file dependency */
+        let audioCtx = null;
+        let soundEnabled = true;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            const btn = document.getElementById('sound-btn');
+            btn.innerHTML = soundEnabled ? '🔊' : '🔇';
+            if (soundEnabled) playAudio('click');
+        }
+
+        function playAudio(type) {
+            if (!soundEnabled) return;
+            try {
+                initAudio();
+                const now = audioCtx.currentTime;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                if (type === 'click') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(400, now);
+                    osc.frequency.exponentialRampToValueAtTime(800, now + 0.08);
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+                    osc.start(now);
+                    osc.stop(now + 0.08);
+                } else if (type === 'correct') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(523.25, now); // C5
+                    osc.frequency.setValueAtTime(659.25, now + 0.08); // E5
+                    osc.frequency.setValueAtTime(783.99, now + 0.16); // G5
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                } else if (type === 'wrong') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(220, now); // A3
+                    osc.frequency.setValueAtTime(174.61, now + 0.12); // F3
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+                    osc.start(now);
+                    osc.stop(now + 0.25);
+                } else if (type === 'fanfare') {
+                    // Confetti and Victory chord
+                    if (typeof confetti === 'function') {
+                        confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
+                    }
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(523.25, now);
+                    osc.frequency.setValueAtTime(659.25, now + 0.1);
+                    osc.frequency.setValueAtTime(783.99, now + 0.2);
+                    osc.frequency.setValueAtTime(1046.50, now + 0.3);
+                    gain.gain.setValueAtTime(0.25, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+                    osc.start(now);
+                    osc.stop(now + 0.5);
+                } else if (type === 'pop') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(300, now);
+                    osc.frequency.exponentialRampToValueAtTime(600, now + 0.05);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+                    osc.start(now);
+                    osc.stop(now + 0.05);
+                }
+            } catch (e) {
+                console.log("Audio play error:", e);
+            }
+        }
+
+        // QUESTION BANK FOR 5 LEVELS
+        const questionBank = {
+            1: [
+                {
+                    text: "Berapa rasio jumlah Apel Merah terhadap Apel Hijau?",
+                    items: { "🍎": 4, "🍏": 2 },
+                    options: ["4 : 2", "2 : 4", "4 : 6", "6 : 4"],
+                    correct: 0,
+                    explanation: "Jumlah apel merah = 4 dan apel hijau = 2. Karena pertanyaannya adalah Apel Merah terhadap Apel Hijau, urutannya adalah 4 : 2."
+                },
+                {
+                    text: "Berapa rasio Apel Hijau terhadap Apel Merah?",
+                    items: { "🍎": 3, "🍏": 5 },
+                    options: ["3 : 5", "5 : 3", "5 : 8", "3 : 8"],
+                    correct: 1,
+                    explanation: "Urutan diminta adalah Apel Hijau (5) terhadap Apel Merah (3), maka rasio yang benar adalah 5 : 3."
+                },
+                {
+                    text: "Tuliskan rasio Bintang Kuning terhadap Bintang Biru!",
+                    items: { "⭐": 6, "🔷": 3 },
+                    options: ["3 : 6", "6 : 3", "6 : 9", "3 : 9"],
+                    correct: 1,
+                    explanation: "Bintang kuning berjumlah 6 dan bintang biru berjumlah 3, sehingga rasionya 6 : 3."
+                },
+                {
+                    text: "Berapa rasio Jeruk terhadap Stroberi?",
+                    items: { "🍊": 2, "🍓": 8 },
+                    options: ["8 : 2", "2 : 8", "2 : 10", "8 : 10"],
+                    correct: 1,
+                    explanation: "Jumlah jeruk = 2 dan stroberi = 8. Rasio Jeruk : Stroberi adalah 2 : 8."
+                },
+                {
+                    text: "Berapa rasio Pisang terhadap Mangga?",
+                    items: { "🍌": 5, "🥭": 5 },
+                    options: ["5 : 5", "5 : 10", "10 : 5", "1 : 2"],
+                    correct: 0,
+                    explanation: "Jumlah pisang = 5 dan mangga = 5. Maka rasionya adalah 5 : 5 (atau sebanding 1 : 1)."
+                }
+            ],
+            2: [
+                {
+                    text: "Berapa rasio Bola Sepak terhadap Bola Basket?",
+                    items: { "⚽": 6, "🏀": 4 },
+                    options: ["4 : 6", "6 : 4", "6 : 10", "4 : 10"],
+                    correct: 1,
+                    explanation: "Bola sepak = 6, bola basket = 4. Rasio sepak : basket = 6 : 4."
+                },
+                {
+                    text: "Berapa rasio Pensil Merah terhadap Buku Biru?",
+                    items: { "📘": 5, "✏️": 3 },
+                    options: ["5 : 3", "3 : 5", "3 : 8", "5 : 8"],
+                    correct: 1,
+                    explanation: "Perhatikan urutan pertanyaan: Pensil (3) terhadap Buku (5). Rasionya adalah 3 : 5."
+                },
+                {
+                    text: "Berapa rasio Bunga Merah terhadap SELURUH Bunga?",
+                    items: { "🌺": 8, "🌼": 4 },
+                    options: ["8 : 4", "4 : 8", "8 : 12", "12 : 8"],
+                    correct: 2,
+                    explanation: "Bunga merah = 8. Seluruh bunga = 8 + 4 = 12. Jadi rasio part-to-whole adalah 8 : 12."
+                },
+                {
+                    text: "Tuliskan rasio Kupu-kupu terhadap Lebah dalam bentuk pecahan!",
+                    items: { "🦋": 2, "🐝": 6 },
+                    options: ["2/6", "6/2", "2/8", "6/8"],
+                    correct: 0,
+                    explanation: "Rasio 2 terhadap 6 dapat ditulis dalam bentuk pecahan a/b menjadi 2/6."
+                },
+                {
+                    text: "Berapa rasio Mobil Biru terhadap Mobil Merah?",
+                    items: { "🚗": 7, "🚙": 3 },
+                    options: ["7 : 3", "3 : 7", "3 : 10", "7 : 10"],
+                    correct: 1,
+                    explanation: "Mobil biru (🚙) = 3 dan Mobil merah (🚗) = 7. Rasio biru : merah = 3 : 7."
+                }
+            ],
+            3: [
+                {
+                    text: "Di kelas VI terdapat 12 murid laki-laki dan 18 murid perempuan. Berapakah rasio murid laki-laki terhadap murid perempuan?",
+                    items: { "👦": 4, "👧": 6 }, // Visual representation
+                    options: ["12 : 18", "18 : 12", "12 : 30", "18 : 30"],
+                    correct: 0,
+                    explanation: "Murid laki-laki = 12 dan perempuan = 18. Urutan Laki-laki : Perempuan = 12 : 18."
+                },
+                {
+                    text: "Ibu membeli 15 telur ayam dan 10 telur bebek. Tuliskan rasio telur bebek terhadap telur ayam!",
+                    items: { "🥚": 5 },
+                    options: ["15 : 10", "10 : 15", "10 : 25", "15 : 25"],
+                    correct: 1,
+                    explanation: "Telur bebek = 10 dan telur ayam = 15. Urutan bebek terhadap ayam = 10 : 15."
+                },
+                {
+                    text: "Resep kue butuh 2 cangkir gula dan 5 cangkir tepung. Rasio tepung terhadap gula adalah...",
+                    items: { "🧁": 3 },
+                    options: ["2 : 5", "5 : 2", "5 : 7", "2 : 7"],
+                    correct: 1,
+                    explanation: "Tepung = 5 cangkir, Gula = 2 cangkir. Rasio tepung terhadap gula = 5 : 2."
+                },
+                {
+                    text: "Di perpustakaan ada 20 buku cerita dan 30 buku pelajaran. Berapa rasio buku cerita terhadap TOTAL SELURUH buku?",
+                    items: { "📚": 5 },
+                    options: ["20 : 30", "30 : 20", "20 : 50", "30 : 50"],
+                    correct: 2,
+                    explanation: "Buku cerita = 20, Total buku = 20 + 30 = 50. Rasio buku cerita : total = 20 : 50."
+                },
+                {
+                    text: "Ayah memelihara 8 ikan lele dan 12 ikan gurame. Tuliskan rasio ikan lele terhadap ikan gurame!",
+                    items: { "🐟": 5 },
+                    options: ["8 : 12", "12 : 8", "8 : 20", "12 : 20"],
+                    correct: 0,
+                    explanation: "Ikan lele = 8, Ikan gurame = 12. Rasionya adalah 8 : 12."
+                }
+            ],
+            4: [
+                {
+                    text: "\"Jumlah kucing 3 ekor dan jumlah kelinci 5 ekor.\" Tuliskan rasio kucing terhadap kelinci!",
+                    items: { "🐱": 3, "🐰": 5 },
+                    options: ["3 : 5", "5 : 3", "3 : 8", "5 : 8"],
+                    correct: 0,
+                    explanation: "Kucing = 3, Kelinci = 5. Rasio kucing : kelinci = 3 : 5."
+                },
+                {
+                    text: "\"Untuk setiap 4 cangkir air, tambahkan 1 sachet sirup.\" Berapa rasio sirup terhadap air?",
+                    items: { "🥤": 4, "🧃": 1 },
+                    options: ["4 : 1", "1 : 4", "1 : 5", "4 : 5"],
+                    correct: 1,
+                    explanation: "Sirup = 1, Air = 4. Rasio sirup terhadap air = 1 : 4."
+                },
+                {
+                    text: "\"Setiap 2 jam sekali, Andi membaca 15 halaman buku.\" Tuliskan rasio jam terhadap halaman buku!",
+                    items: { "⏰": 2, "📖": 3 },
+                    options: ["15 : 2", "2 : 15", "2 : 17", "15 : 17"],
+                    correct: 1,
+                    explanation: "Jam = 2, Halaman = 15. Rasio jam terhadap halaman = 2 : 15."
+                },
+                {
+                    text: "\"Paman memiliki 7 sepeda dan 2 sepeda motor.\" Tuliskan rasio sepeda motor terhadap sepeda!",
+                    items: { "🚲": 4, "🛵": 2 },
+                    options: ["7 : 2", "2 : 7", "2 : 9", "7 : 9"],
+                    correct: 1,
+                    explanation: "Sepeda motor = 2, Sepeda = 7. Urutan motor ke sepeda = 2 : 7."
+                },
+                {
+                    text: "\"Di lapangan ada 10 anak main bola dan 4 anak main sepeda.\" Rasio anak main bola terhadap main sepeda adalah...",
+                    items: { "⚽": 5, "🚲": 2 },
+                    options: ["10 : 4", "4 : 10", "10 : 14", "4 : 14"],
+                    correct: 0,
+                    explanation: "Main bola = 10, Main sepeda = 4. Rasio bola : sepeda = 10 : 4."
+                }
+            ],
+            5: [
+                {
+                    text: "Ada 5 cangkir kopi dan 8 cangkir teh. Rasio cangkir teh terhadap kopi adalah...",
+                    items: { "☕": 5, "🍵": 8 },
+                    options: ["5 : 8", "8 : 5", "8 : 13", "5 : 13"],
+                    correct: 1,
+                    explanation: "Teh = 8, Kopi = 5. Rasio teh : kopi = 8 : 5."
+                },
+                {
+                    text: "Di dalam dompet ada 6 koin Rp500 dan 4 koin Rp1000. Berapa rasio koin Rp500 terhadap TOTAL seluruh koin?",
+                    items: { "🪙": 6 },
+                    options: ["6 : 4", "4 : 6", "6 : 10", "4 : 10"],
+                    correct: 2,
+                    explanation: "Koin Rp500 = 6, Total koin = 6 + 4 = 10. Rasio = 6 : 10."
+                },
+                {
+                    text: "\"Setiap 3 kg beras seharga Rp45.000.\" Tuliskan rasio kg beras terhadap harganya!",
+                    items: { "🌾": 3 },
+                    options: ["3 : 45.000", "45.000 : 3", "3 : 48.000", "1 : 45.000"],
+                    correct: 0,
+                    explanation: "Besaran kg beras = 3, harga = 45.000. Rasio = 3 : 45.000."
+                },
+                {
+                    text: "Gambar berikut menunjukkan 9 Balon Merah dan 3 Balon Hijau. Rasio Balon Merah terhadap Balon Hijau adalah...",
+                    items: { "🎈": 6, "🟢": 2 },
+                    options: ["9 : 3", "3 : 9", "9 : 12", "3 : 12"],
+                    correct: 0,
+                    explanation: "Balon merah = 9, Balon hijau = 3. Rasio = 9 : 3."
+                },
+                {
+                    text: "Manakah kalimat bahasa rasio yang tepat untuk perbandingan 4 : 5?",
+                    items: { "💡": 1 },
+                    options: ["4 dibanding 5", "4 ditambah 5", "4 dikali 5", "5 kurang 4"],
+                    correct: 0,
+                    explanation: "Rasio a : b dibaca 'a dibanding b' atau 'a terhadap b'."
+                },
+                {
+                    text: "Di kebun ada 14 pohon pisang dan 21 pohon mangga. Tuliskan rasio pohon pisang terhadap pohon mangga!",
+                    items: { "🌴": 4, "🌳": 5 },
+                    options: ["14 : 21", "21 : 14", "14 : 35", "21 : 35"],
+                    correct: 0,
+                    explanation: "Pohon pisang = 14, Pohon mangga = 21. Rasio pisang : mangga = 14 : 21."
+                },
+                {
+                    text: "Rasio 3 : 7 dapat ditulis dalam bentuk pecahan sebagai...",
+                    items: { "✍️": 1 },
+                    options: ["3/7", "7/3", "3/10", "7/10"],
+                    correct: 0,
+                    explanation: "Bentuk pecahan dari rasio a : b adalah a/b, yaitu 3/7."
+                },
+                {
+                    text: "Dini membeli 2 buku gambar dan 6 pensil warna. Rasio pensil warna terhadap buku gambar adalah...",
+                    items: { "🎨": 4 },
+                    options: ["2 : 6", "6 : 2", "6 : 8", "2 : 8"],
+                    correct: 1,
+                    explanation: "Pensil warna = 6, Buku gambar = 2. Rasio pensil warna : buku gambar = 6 : 2."
+                },
+                {
+                    text: "Urutan dalam penulisan rasio A : B artinya...",
+                    items: { "🧠": 1 },
+                    options: [
+                        "Besaran A dibandingkan terhadap besaran B",
+                        "Besaran B selalu lebih besar dari A",
+                        "Urutan tidak berpengaruh",
+                        "Besaran A ditambah besaran B"
+                    ],
+                    correct: 0,
+                    explanation: "Rasio A : B membandingkan besaran pertama A terhadap besaran kedua B."
+                },
+                {
+                    text: "Di akuarium terdapat 5 ikan kuning dan 10 ikan biru. Rasio ikan biru terhadap SELURUH ikan adalah...",
+                    items: { "🐠": 5, "🐟": 5 },
+                    options: ["10 : 5", "5 : 10", "10 : 15", "5 : 15"],
+                    correct: 2,
+                    explanation: "Ikan biru = 10, Seluruh ikan = 5 + 10 = 15. Rasio = 10 : 15."
+                }
+            ]
+        };
+
+        // GAME STATE
+        let currentState = {
+            level: 1,
+            questionIndex: 0,
+            score: 0,
+            lives: 3,
+            correctCount: 0,
+            wrongCount: 0,
+            stars: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
+            highScore: 0
+        };
+
+        // Load saved High Score from localStorage
+        try {
+            const savedScore = localStorage.getItem('ratio_adv_highscore');
+            if (savedScore) {
+                currentState.highScore = parseInt(savedScore, 10);
+                document.getElementById('global-high-score').textContent = currentState.highScore;
+            }
+        } catch (e) {}
+
+        function showScreen(screenId) {
+            const screens = [
+                'screen-main-menu',
+                'screen-level-select',
+                'screen-materi',
+                'screen-petunjuk',
+                'screen-gameplay',
+                'screen-refleksi'
+            ];
+            screens.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.add('hidden');
+            });
+            const target = document.getElementById(screenId);
+            if (target) target.classList.remove('hidden');
+        }
+
+        function toggleFullscreen() {
+            playAudio('click');
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(() => {});
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen();
+            }
+        }
+
+        function startLevel(lvlNum) {
+            playAudio('click');
+            currentState.level = lvlNum;
+            currentState.questionIndex = 0;
+            currentState.lives = 3;
+            
+            showScreen('screen-gameplay');
+            
+            const levelTitles = {
+                1: "Pulau Pengenalan Rasio",
+                2: "Hutan Perbandingan",
+                3: "Kota Rasio",
+                4: "Tantangan Bahasa Rasio",
+                5: "Misi Juara Rasio"
+            };
+
+            document.getElementById('game-level-tag').textContent = `Level ${lvlNum}`;
+            document.getElementById('game-level-title').textContent = levelTitles[lvlNum];
+
+            renderQuestion();
+        }
+
+        function updateHUD() {
+            document.getElementById('current-score').textContent = currentState.score;
+            
+            // Render Lives Hearts
+            let hearts = "";
+            for (let i = 0; i < currentState.lives; i++) hearts += "❤️";
+            for (let i = currentState.lives; i < 3; i++) hearts += "🖤";
+            document.getElementById('lives-display').textContent = hearts || "🖤🖤🖤";
+
+            // Update Progress Bar
+            const totalQ = questionBank[currentState.level].length;
+            const pct = (currentState.questionIndex / totalQ) * 100;
+            document.getElementById('progress-bar-inner').style.width = `${pct}%`;
+        }
+
+        function renderQuestion() {
+            updateHUD();
+
+            const questions = questionBank[currentState.level];
+            if (currentState.questionIndex >= questions.length) {
+                // Level Finished!
+                finishLevel();
+                return;
+            }
+
+            const q = questions[currentState.questionIndex];
+            document.getElementById('question-counter').textContent = `Soal ${currentState.questionIndex + 1} dari ${questions.length}`;
+            document.getElementById('question-text').textContent = q.text;
+
+            // Render Graphic Illustration Box
+            const illusBox = document.getElementById('question-illustration');
+            illusBox.innerHTML = "";
+            
+            if (q.items) {
+                Object.keys(q.items).forEach(symbol => {
+                    const count = q.items[symbol];
+                    for (let i = 0; i < count; i++) {
+                        const span = document.createElement('span');
+                        span.className = "text-3xl sm:text-4xl transform hover:scale-125 transition duration-200 cursor-pointer select-none";
+                        span.textContent = symbol;
+                        illusBox.appendChild(span);
+                    }
+                });
+            }
+
+            // Render Options
+            const optContainer = document.getElementById('options-container');
+            optContainer.innerHTML = "";
+
+            q.options.forEach((optText, index) => {
+                const btn = document.createElement('button');
+                btn.className = "btn-action bg-gradient-to-r from-sky-50 to-indigo-50 hover:from-amber-100 hover:to-orange-100 text-slate-800 border-2 border-indigo-200 font-extrabold text-lg sm:text-xl py-4 px-6 rounded-2xl flex items-center justify-center shadow-md transition";
+                btn.onclick = () => checkAnswer(index);
+                btn.innerHTML = `<span class="bg-indigo-600 text-white text-xs px-2.5 py-1 rounded-lg mr-3 shadow-sm">${String.fromCharCode(65 + index)}</span> ${optText}`;
+                optContainer.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(selectedIndex) {
+            const questions = questionBank[currentState.level];
+            const q = questions[currentState.questionIndex];
+
+            const modal = document.getElementById('feedback-modal');
+            const icon = document.getElementById('feedback-icon');
+            const title = document.getElementById('feedback-title');
+            const scoreBadge = document.getElementById('feedback-score-badge');
+            const explanation = document.getElementById('feedback-explanation');
+
+            if (selectedIndex === q.correct) {
+                // Correct Answer!
+                playAudio('correct');
+                currentState.score += 10;
+                currentState.correctCount++;
+
+                icon.textContent = "🎉";
+                title.textContent = "Jawaban Tepat!";
+                title.className = "text-2xl sm:text-3xl font-black text-emerald-600 my-1";
+                scoreBadge.textContent = "+10 Poin Tambahan";
+                scoreBadge.className = "inline-block bg-emerald-100 text-emerald-800 font-extrabold text-sm px-3 py-1 rounded-full mb-3 border border-emerald-300";
+            } else {
+                // Wrong Answer!
+                playAudio('wrong');
+                currentState.lives--;
+                currentState.wrongCount++;
+
+                icon.textContent = "💡";
+                title.textContent = "Kurang Tepat!";
+                title.className = "text-2xl sm:text-3xl font-black text-rose-600 my-1";
+                scoreBadge.textContent = "Tetap Semangat!";
+                scoreBadge.className = "inline-block bg-rose-100 text-rose-800 font-extrabold text-sm px-3 py-1 rounded-full mb-3 border border-rose-300";
+            }
+
+            explanation.textContent = q.explanation;
+            modal.classList.remove('hidden');
+
+            // Update High Score if needed
+            if (currentState.score > currentState.highScore) {
+                currentState.highScore = currentState.score;
+                document.getElementById('global-high-score').textContent = currentState.highScore;
+                try {
+                    localStorage.setItem('ratio_adv_highscore', currentState.highScore);
+                } catch(e) {}
+            }
+        }
+
+        function nextQuestion() {
+            playAudio('click');
+            document.getElementById('feedback-modal').classList.add('hidden');
+
+            if (currentState.lives <= 0) {
+                // Game Over for this level attempt
+                playAudio('wrong');
+                alertCustom("Kesempatan Habis!", "Ayo pelajari kembali materi dan coba tingkatkan skor di level ini!", () => {
+                    showScreen('screen-level-select');
+                });
+                return;
+            }
+
+            currentState.questionIndex++;
+            renderQuestion();
+        }
+
+        function finishLevel() {
+            playAudio('fanfare');
+            
+            // Calculate Stars
+            let starsEarned = 1;
+            if (currentState.lives === 3) starsEarned = 3;
+            else if (currentState.lives === 2) starsEarned = 2;
+
+            currentState.stars[currentState.level] = Math.max(currentState.stars[currentState.level], starsEarned);
+            
+            // Update Stars display on Map
+            const starSpan = document.getElementById(`stars-lvl-${currentState.level}`);
+            if (starSpan) {
+                let starText = "";
+                for (let i = 0; i < starsEarned; i++) starText += "⭐";
+                starSpan.textContent = starText;
+            }
+
+            // Prepare Summary & Reflection Screen
+            const totalQ = currentState.correctCount + currentState.wrongCount || 1;
+            const accuracyPct = Math.round((currentState.correctCount / totalQ) * 100);
+
+            document.getElementById('res-total-score').textContent = currentState.score;
+            document.getElementById('res-correct').textContent = currentState.correctCount;
+            document.getElementById('res-wrong').textContent = currentState.wrongCount;
+            document.getElementById('res-accuracy').textContent = `${accuracyPct}%`;
+
+            // Calculate Predicate
+            let predText = "Ayo Belajar Lagi 💪";
+            let recoText = "Rekomendasi: Baca kembali modul 'Apa itu Rasio' dan perhatikan urutan besaran a : b.";
+            
+            if (accuracyPct >= 90) {
+                predText = "👑 Ahli Rasio (Master Rasio)";
+                recoText = "Luar biasa! Pemahaman rasionu sangat tajam. Siap menantang soal matematika tingkat lanjut!";
+            } else if (accuracyPct >= 80) {
+                predText = "🌟 Hebat Dalam Rasio";
+                recoText = "Sangat bagus! Kamu sudah memahami perbandingan besaran dengan baik.";
+            } else if (accuracyPct >= 60) {
+                predText = "👍 Terus Berlatih";
+                recoText = "Cukup baik! Berlatihlah lagi pada bagian urutan rasio dan rasio terhadap total.";
+            }
+
+            document.getElementById('res-predicate').textContent = predText;
+            document.getElementById('res-recommendation').textContent = recoText;
+
+            showScreen('screen-refleksi');
+        }
+
+        /* Custom Modal Helper replacing standard alert */
+        function alertCustom(titleMsg, bodyMsg, callback) {
+            const modal = document.getElementById('feedback-modal');
+            document.getElementById('feedback-icon').textContent = "📢";
+            document.getElementById('feedback-title').textContent = titleMsg;
+            document.getElementById('feedback-title').className = "text-2xl sm:text-3xl font-black text-amber-600 my-1";
+            document.getElementById('feedback-score-badge').textContent = "Pemberitahuan";
+            document.getElementById('feedback-explanation').textContent = bodyMsg;
+            
+            const btn = document.getElementById('feedback-next-btn');
+            btn.onclick = () => {
+                modal.classList.add('hidden');
+                if (callback) callback();
+            };
+            modal.classList.remove('hidden');
+        }
+
+        function saveReflection() {
+            playAudio('click');
+            const msg = document.getElementById('ref-save-msg');
+            msg.classList.remove('hidden');
+            setTimeout(() => msg.classList.add('hidden'), 3000);
+        }
+
+        // Initialize Audio Context on first click anywhere
+        window.addEventListener('click', () => {
+            initAudio();
+        }, { once: true });
+    </script>
+</body>
+</html>
